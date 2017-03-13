@@ -1,5 +1,6 @@
 package com.jang.upload;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,15 +25,18 @@ public class UploadDemo extends HttpServlet {
 		try {
 			// 1.创建工厂
 			DiskFileItemFactory fac = new DiskFileItemFactory();
+			fac.setSizeThreshold(1024*1024); //默认缓存为10k，上传文件大于缓冲区内存则先将文件放入临时文件夹，在进行上传
+			fac.setRepository(new File(this.getServletContext().getRealPath("/temp"))); //临时文件
 			// 2.创建解析器；
 			ServletFileUpload upload = new ServletFileUpload(fac);
+
 			// 3.解析request
 			List<FileItem> list = upload.parseRequest(request);
 			for (FileItem item : list) {
 				if (item.isFormField()) {
 					String inputname = item.getFieldName(); //此处为表单普通输入项名称
 					String inputvalue = item.getString("utf-8");
-					//String inputvalue = new String((item.getString().getBytes("iso8859-1")),"utf-8");
+					//String inputvalue1 = new String((item.getString().getBytes("iso8859-1")),"utf-8");
 					System.out.println(inputname + ":" + inputvalue);
 				} else {
 					if(item.getName().lastIndexOf("\\")>0){ //IE6.0
@@ -54,7 +58,7 @@ public class UploadDemo extends HttpServlet {
 					}
 					input.close();
 					out.close();
-
+					item.delete(); //上传完成，流关闭后及时删除临时文件
 				}
 			}
 		} catch (FileUploadException e) {
