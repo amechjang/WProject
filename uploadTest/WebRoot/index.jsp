@@ -6,7 +6,8 @@
 	<body>
 		<form action="Upload" method="post" enctype="multipart/form-data"> 
 			name:<input type="text" name="user"  /><br><br>
-			file:<input type="file" name="img" /><br><br>
+			file1:<input type="file" name="img1" /><br><br>
+			file2:<input type="file" name="img2" /><br><br>
 				<input type="submit" value="Submit"/>
 		</form>
 	</body>
