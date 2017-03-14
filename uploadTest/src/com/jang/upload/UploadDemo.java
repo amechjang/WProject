@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -54,7 +55,8 @@ public class UploadDemo extends HttpServlet {
 									item.getName().lastIndexOf("\\") + 1);
 							System.out.println("1:"+request.getHeader("user-agent"));
 						}else{*/
-							filename = item.getName();	
+						//调用方法生成上传文件的随机文件名
+							filename = generateFileName(item.getName());	
 							System.out.println("2:"+request.getHeader("user-agent"));
 						//}
 					}else{
@@ -65,9 +67,9 @@ public class UploadDemo extends HttpServlet {
 					InputStream input = item.getInputStream();
 					int len = 0;
 					byte[] b = new byte[1024];
-					FileOutputStream out = new FileOutputStream(this.getServletContext().getRealPath("/WEB-INF/upload")+"\\"  
-							+ filename);
-					System.out.println(this.getServletContext().getRealPath("/WEB-INF/upload")+"\\"+ filename);
+					String path = this.getServletContext().getRealPath("/WEB-INF/upload");
+					FileOutputStream out = new FileOutputStream(generateSavePath(path,filename)+"/"+filename);
+					System.out.println(generateSavePath(path,filename)+"/"+filename);
 					while ((len = input.read(b)) > 0) {
 						out.write(b, 0, len);
 					}
@@ -86,10 +88,25 @@ public class UploadDemo extends HttpServlet {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
+	}
+	public String generateFileName(String filename){
+		//生成文件id
+		return UUID.randomUUID().toString() + "_" + filename;
+	}
+	public String generateSavePath(String path,String filename){
+		int code = filename.hashCode();
+		int dir = code & 15;
+		int dir1 = (code>>4) & 15;
+		String savaPath = path +"/"+ dir +"/"+ dir1;
+		File file = new File(savaPath);
+		if(!file.exists()){
+			file.mkdirs();
+		}
+		return savaPath;
 	}
 
 }
